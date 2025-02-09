@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "atividade1"
+name = "atividade2"
 version = "0.1.0"
-description = "atividade webscrapper"
+description = "atividade classificacao"
 authors = ["arthurym <arthuryamamoto25@gmail.com>"]
 readme = "README.md"
 
