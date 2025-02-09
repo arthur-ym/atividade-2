@@ -6,7 +6,7 @@ authors = ["arthurym <arthuryamamoto25@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "3.11.3"
 pandas = "^2.2.3"
 bs4 = "^0.0.2"
 pre-commit = "^4.0.1"
@@ -21,6 +21,8 @@ pydantic = "^2.10.5"
 mlflow = "^2.20.1"
 matplotlib = "^3.10.0"
 seaborn = "^0.13.2"
+sweetviz = "^2.3.1"
+summarytools = "^0.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -42,7 +44,10 @@ select = [
 ignore = [
     "E501",  # line-too-long
 ]
-
+exclude = [
+    "EDA/",  # Ignore this folder
+    "tests/",             # Example: Ignore the tests folder
+]
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
@@ -56,6 +61,8 @@ exclude = [  # don't report on checks for these
     '\\.__init__$',
     '\\.__repr__$',
     '\\.__str__$',
+    "EDA/",  # Ignore this folder
+    "tests/",             # Example: Ignore the tests folder
 ]
 override_SS05 = [  # allow docstrings to start with these words
     '^Process ',
