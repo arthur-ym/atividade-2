@@ -5,9 +5,12 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from xgboost import XGBClassifier
+
+from src_2.mlflowIO import log_figures, log_metrics
+from src_2.model_evaluation import evaluate_model
 
 
 class WaterPotabilityClassifier:
@@ -55,30 +58,50 @@ class WaterPotabilityClassifier:
         self.X_test = self.scaler.transform(self.X_test)
         print('Dados pré-processados e padronizados!')
 
-    def train_model(self):
+    def train_model(self, model_type: str = 'random_forest'):
         """
-        Treina um modelo de RandomForestClassifier.
-        """
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
-        self.model.fit(self.X_train, self.y_train)
-        print('Modelo treinado com sucesso!')
+        Treina um modelo de classificação baseado na escolha do usuário.
 
-    def evaluate_model(self):
+        Args:
+            model_type (str): Tipo do modelo a ser treinado. Pode ser:
+                - "random_forest" para RandomForestClassifier
+                - "xgboost" para XGBClassifier
+                - "catboost" para CatBoostClassifier
+        """
+        if model_type == 'random_forest':
+            self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+        elif model_type == 'xgboost':
+            self.model = XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42)
+        elif model_type == 'xgboost_2':
+            default_xgb_params = {
+                'n_estimators': 100,
+                'learning_rate': 0.1,
+                'max_depth': 6,
+                'subsample': 0.8,
+                'colsample_bytree': 0.8,
+                'objective': 'binary:logistic',
+                'eval_metric': 'logloss',
+                'use_label_encoder': False,
+                'random_state': 42,
+            }
+            self.model = XGBClassifier(**default_xgb_params)
+        else:
+            raise ValueError("Modelo inválido! Escolha entre 'random_forest', 'xgboost' ou 'xgboost_2'.")
+
+        self.model.fit(self.X_train, self.y_train)
+        print(f'Modelo {model_type} treinado com sucesso!')
+
+    def run_evaluate_model(self):
         """
         Avalia o modelo e retorna as métricas.
         """
+        y_pred_proba = self.model.predict_proba(self.X_test)[:, 1]
         y_pred = self.model.predict(self.X_test)
-        accuracy = accuracy_score(self.y_test, y_pred)
-        conf_matrix = confusion_matrix(self.y_test, y_pred)
-        class_report = classification_report(self.y_test, y_pred)
+        metrics, confusion_matrix, pr_curve = evaluate_model(self.y_test, y_pred, y_pred_proba)
+        log_metrics(metrics)
+        log_figures({'pr_curve': pr_curve, 'confusion_matrix': confusion_matrix}, 'model_evaluation')
 
-        print(f'Acurácia: {accuracy}')
-        print('Matriz de Confusão:')
-        print(conf_matrix)
-        print('Relatório de Classificação:')
-        print(class_report)
-
-        return accuracy, conf_matrix, class_report
+        return metrics, confusion_matrix, pr_curve
 
     def log_to_mlflow(self, experiment_name='Water_Potability_Classification'):
         """
@@ -86,26 +109,13 @@ class WaterPotabilityClassifier:
         """
         mlflow.set_experiment(experiment_name)
 
-        with mlflow.start_run():
-            # Log dos parâmetros do modelo
-            mlflow.log_param('n_estimators', 100)
-            mlflow.log_param('random_state', 42)
+        # Log dos parâmetros do modelo
+        mlflow.log_param('n_estimators', 100)
+        mlflow.log_param('random_state', 42)
 
-            # Log das métricas
-            accuracy, conf_matrix, class_report = self.evaluate_model()
-            mlflow.log_metric('accuracy', accuracy)
-            mlflow.log_text(str(conf_matrix), 'confusion_matrix.txt')
-            mlflow.log_text(class_report, 'classification_report.txt')
+        accuracy, conf_matrix, class_report = self.evaluate_model()
+        mlflow.log_metric('accuracy', accuracy)
+        mlflow.log_text(str(conf_matrix), 'confusion_matrix.txt')
+        mlflow.log_text(class_report, 'classification_report.txt')
 
-            # Log do modelo
-            mlflow.sklearn.log_model(self.model, 'model')
-            print('Modelo e métricas registrados no MLflow!')
-
-    def run(self):
-        """
-        Executa o pipeline completo: carregar dados, pré-processar, treinar e registrar no MLflow.
-        """
-        self.load_data()
-        self.preprocess_data()
-        self.train_model()
-        self.log_to_mlflow()
+        mlflow.sklearn.log_model(self.model, 'model')

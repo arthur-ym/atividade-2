@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (
     accuracy_score,
+    auc,
     classification_report,
     confusion_matrix,
     f1_score,
+    precision_recall_curve,
     precision_score,
     recall_score,
     roc_auc_score,
-    roc_curve,
 )
 
 
@@ -30,11 +31,14 @@ def calculate_metrics(y_true, y_pred, y_pred_proba: Optional[list] = None) -> di
     Returns:
         Um dicionário contendo as métricas calculadas.
     """
+    precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+    pr_auc = auc(recall, precision)
     metrics = {
         'accuracy': accuracy_score(y_true, y_pred),
         'precision': precision_score(y_true, y_pred),
         'recall': recall_score(y_true, y_pred),
         'f1_score': f1_score(y_true, y_pred),
+        'pr_auc': pr_auc,
     }
 
     if y_pred_proba is not None:
@@ -51,35 +55,49 @@ def plot_confusion_matrix(y_true, y_pred, title: str = 'Confusion Matrix'):
         y_true: Valores reais (ground truth).
         y_pred: Previsões do modelo (classes).
         title: Título do gráfico.
+
+    Returns:
+        figure: Objeto da figura matplotlib.
     """
     cm = confusion_matrix(y_true, y_pred)
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    plt.title(title)
+
+    fig, ax = plt.subplots(figsize=(5, 4))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'], ax=ax)
+
+    ax.set_xlabel('Predicted')
+    ax.set_ylabel('True')
+    ax.set_title(title)
     plt.show()
 
+    return fig
 
-def plot_roc_curve(y_true, y_pred_proba, title: str = 'ROC Curve'):
+
+def plot_precision_recall_curve(y_true, y_pred_proba, title: str = 'Precision-Recall Curve'):
     """
-    Plota a curva ROC para um problema de classificação binária.
+    Plota a curva de Precision-Recall.
 
     Args:
         y_true: Valores reais (ground truth).
         y_pred_proba: Probabilidades previstas para a classe positiva.
         title: Título do gráfico.
-    """
-    fpr, tpr, thresholds = roc_curve(y_true, y_pred_proba)
-    roc_auc = roc_auc_score(y_true, y_pred_proba)
 
-    plt.figure()
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title(title)
-    plt.legend(loc='lower right')
+    Returns:
+        figure: Objeto da figura matplotlib.
+    """
+    precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+    pr_auc = auc(recall, precision)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax.plot(recall, precision, color='blue', lw=2, label=f'Precision-Recall curve (AUC = {pr_auc:.2f})')
+    ax.set_xlabel('Recall')
+    ax.set_ylabel('Precision')
+    ax.set_title(title)
+    ax.legend(loc='lower left')
+    ax.grid(True)
+
     plt.show()
+
+    return fig
 
 
 def print_classification_report(y_true, y_pred):
@@ -95,7 +113,7 @@ def print_classification_report(y_true, y_pred):
     print(report)
 
 
-def evaluate_model(y_true, y_pred, y_pred_proba: Optional[list] = None):
+def evaluate_model(y_true, y_pred, y_pred_proba):
     """
     Avalia um modelo de classificação binária e exibe métricas, matriz de confusão e curva ROC.
 
@@ -111,11 +129,12 @@ def evaluate_model(y_true, y_pred, y_pred_proba: Optional[list] = None):
         print(f'{key}: {value:.4f}')
 
     # Plotar matriz de confusão
-    plot_confusion_matrix(y_true, y_pred)
+    confusion_matrix = plot_confusion_matrix(y_true, y_pred)
 
     # Plotar curva ROC (se y_pred_proba for fornecido)
     if y_pred_proba is not None:
-        plot_roc_curve(y_true, y_pred_proba)
+        pr_curve = plot_precision_recall_curve(y_true, y_pred_proba)
 
     # Imprimir relatório de classificação
     print_classification_report(y_true, y_pred)
+    return metrics, confusion_matrix, pr_curve

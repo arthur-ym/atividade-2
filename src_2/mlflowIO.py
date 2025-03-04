@@ -76,18 +76,26 @@ def log_model(model, model_name: str, artifact_path: str = 'model'):
     print(f"Modelo '{model_name}' logado no MLflow em '{artifact_path}'.")
 
 
-def start_run(run_name: Optional[str] = None, experiment_name: Optional[str] = None):
+def start_run(run_name: Optional[str] = None, experiment_name: Optional[str] = None, run_id: Optional[str] = None):
     """
-    Inicia uma nova run no MLflow.
+    Inicia ou continua uma run no MLflow.
 
     Args:
         run_name (Optional[str]): Nome da run.
         experiment_name (Optional[str]): Nome do experimento.
+        run_id (Optional[str]): ID da run existente para continuar.
     """
+    mlflow.set_tracking_uri('http://localhost:5001/')
+
     if experiment_name:
         mlflow.set_experiment(experiment_name)
-    mlflow.start_run(run_name=run_name)
-    print(f'Run iniciada: {run_name} (Experimento: {experiment_name})')
+
+    if run_id:
+        mlflow.start_run(run_id=run_id)
+        print(f'Run continuada: {run_id} (Experimento: {experiment_name})')
+    else:
+        mlflow.start_run(run_name=run_name)
+        print(f'Nova run iniciada: {run_name} (Experimento: {experiment_name})')
 
 
 def end_run():
