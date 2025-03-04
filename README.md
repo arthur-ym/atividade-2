@@ -7,7 +7,9 @@ Este projeto treina e avalia modelos de machine learning para prever a potabilid
 O projeto segue os seguintes passos:
 1. **EDA**: Na pasta EDA, temos uma breve exploração dos dados com comentários sobre as visões geradas.
 2. **Definição de classes e funções**: Definição da classe WaterPotabilityClassifier e as funções de mlflowIO e model_evaluation
+
 Após isso, criamos o nosso entrypoint:
+
 3. **Importação de Bibliotecas**: Carregamento dos módulos necessários, incluindo `WaterPotabilityClassifier` e `mlflowIO`.
 4. **Treinamento e Avaliação de Modelos**:
    - Random Forest
