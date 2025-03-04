@@ -41,11 +41,9 @@ def log_figures(figures: Dict[str, plt.Figure], artifact_path: str = 'figures'):
         figures (Dict[str, plt.Figure]): Dicionário contendo as figuras a serem salvas.
         artifact_path (str): Caminho relativo no MLflow para salvar as figuras.
     """
-    os.makedirs(artifact_path, exist_ok=True)
     for name, fig in figures.items():
-        file_path = os.path.join(artifact_path, f'{name}.png')
-        fig.savefig(file_path)
-        mlflow.log_artifact(file_path)
+        file_path = artifact_path + '/' + f'{name}.png'
+        mlflow.log_figure(fig, file_path)
         print(f"Figura '{name}' salva em '{file_path}' e logada no MLflow.")
 
 
