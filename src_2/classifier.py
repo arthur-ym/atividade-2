@@ -1,8 +1,6 @@
 """
 Classe para treinar um modelo de classificação de potabilidade da água.
 """
-import mlflow
-import mlflow.sklearn
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -61,12 +59,12 @@ class WaterPotabilityClassifier:
     def train_model(self, model_type: str = 'random_forest'):
         """
         Treina um modelo de classificação baseado na escolha do usuário.
-
+        Loga parâmetros do modelo e modelo no MLflow.
         Args:
             model_type (str): Tipo do modelo a ser treinado. Pode ser:
                 - "random_forest" para RandomForestClassifier
                 - "xgboost" para XGBClassifier
-                - "catboost" para CatBoostClassifier
+                - "xgboost_2" para XGBClassifier com outros hiperparametros
         """
         if model_type == 'random_forest':
             default_params = {'n_estimators': 100, 'random_state': 42}
@@ -98,6 +96,7 @@ class WaterPotabilityClassifier:
     def run_evaluate_model(self):
         """
         Avalia o modelo e retorna as métricas.
+        Loga metricas no mlflow.
         """
         y_pred_proba = self.model.predict_proba(self.X_test)[:, 1]
         y_pred = self.model.predict(self.X_test)
@@ -106,20 +105,3 @@ class WaterPotabilityClassifier:
         log_figures({'pr_curve': pr_curve, 'confusion_matrix': confusion_matrix}, 'model_evaluation')
 
         return metrics, confusion_matrix, pr_curve
-
-    def log_to_mlflow(self, experiment_name='Water_Potability_Classification'):
-        """
-        Registra o modelo e as métricas no MLflow.
-        """
-        mlflow.set_experiment(experiment_name)
-
-        # Log dos parâmetros do modelo
-        mlflow.log_param('n_estimators', 100)
-        mlflow.log_param('random_state', 42)
-
-        accuracy, conf_matrix, class_report = self.evaluate_model()
-        mlflow.log_metric('accuracy', accuracy)
-        mlflow.log_text(str(conf_matrix), 'confusion_matrix.txt')
-        mlflow.log_text(class_report, 'classification_report.txt')
-
-        mlflow.sklearn.log_model(self.model, 'model')
