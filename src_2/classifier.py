@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 
-from src_2.mlflowIO import log_figures, log_metrics
+from src_2.mlflowIO import log_figures, log_metrics, log_model, log_params
 from src_2.model_evaluation import evaluate_model
 
 
@@ -69,11 +69,13 @@ class WaterPotabilityClassifier:
                 - "catboost" para CatBoostClassifier
         """
         if model_type == 'random_forest':
-            self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+            default_params = {'n_estimators': 100, 'random_state': 42}
+            self.model = RandomForestClassifier(**default_params)
         elif model_type == 'xgboost':
-            self.model = XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42)
+            default_params = {'use_label_encoder': False, 'random_state': 42, 'eval_metric': 'logloss'}
+            self.model = XGBClassifier(**default_params)
         elif model_type == 'xgboost_2':
-            default_xgb_params = {
+            default_params = {
                 'n_estimators': 100,
                 'learning_rate': 0.1,
                 'max_depth': 6,
@@ -84,12 +86,14 @@ class WaterPotabilityClassifier:
                 'use_label_encoder': False,
                 'random_state': 42,
             }
-            self.model = XGBClassifier(**default_xgb_params)
+            self.model = XGBClassifier(**default_params)
         else:
             raise ValueError("Modelo inválido! Escolha entre 'random_forest', 'xgboost' ou 'xgboost_2'.")
 
         self.model.fit(self.X_train, self.y_train)
         print(f'Modelo {model_type} treinado com sucesso!')
+        log_model(self.model, model_type)
+        log_params(default_params)
 
     def run_evaluate_model(self):
         """
