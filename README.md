@@ -3,6 +3,11 @@
 ## Visão Geral
 Este projeto treina e avalia modelos de machine learning para prever a potabilidade da água. O experimento é rastreado usando MLflow, e os modelos Random Forest e XGBoost são utilizados para classificação.
 Não é do escopo deste projeto a criação de features e o tunning do modelo, rodamos 3 versões simples para utilizarmos o mlflow para logging de parâmetros e métricas importantes do modelo.
+Utilizamos o poetry para fazer gerenciamento de dependências e empacotamento para projetos em Python. No arquivo pyproject.toml, temos "tool.poetry.dependencies" que representam as dependencias. Logo abaixo temos a configuração do Ruff. O Ruff é uma ferramenta para desenvolvedores que nos ajuda com linting e formatação de código Python. Cada commit que nós damos só será aceito se estivermos de acordo com o padrao decidido.
+Utilizamos o pre-commit para automatizar verificações de código antes de um commit no Git. Ele ajuda a garantir que o código siga padrões de qualidade, estilo e formatação, evitando problemas antes que o código seja enviado para o repositório.
+Antes de executar git commit, o pre-commit roda os hooks configurados no repositório.
+Se algum hook falhar (exemplo: erro de formatação, espaço em branco desnecessário, erro de lint), o commit é bloqueado até que o problema seja corrigido.
+Isso nos obriga a corrigir erros antes de enviar código quebrado ou mal formatado para o repositório.
 
 ## Estrutura do Projeto
 O projeto segue os seguintes passos:
