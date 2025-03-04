@@ -5,14 +5,16 @@ Este projeto treina e avalia modelos de machine learning para prever a potabilid
 
 ## Estrutura do Projeto
 O projeto segue os seguintes passos:
-1. **Configuração do Ambiente**: Definição do diretório de trabalho.
-2. **Importação de Bibliotecas**: Carregamento dos módulos necessários, incluindo `WaterPotabilityClassifier` e `mlflowIO`.
-3. **Treinamento e Avaliação de Modelos**:
+1. **EDA**: Na pasta EDA, temos uma breve exploração dos dados com comentários sobre as visões geradas.
+2. **Definição de classes e funções**: Definição da classe WaterPotabilityClassifier e as funções de mlflowIO e model_evaluation
+Após isso, criamos o nosso entrypoint:
+3. **Importação de Bibliotecas**: Carregamento dos módulos necessários, incluindo `WaterPotabilityClassifier` e `mlflowIO`.
+4. **Treinamento e Avaliação de Modelos**:
    - Random Forest
    - XGBoost (duas variantes)
-4. **Registro de Resultados no MLflow**
+5. **Registro de Resultados no MLflow**
 
-## Guia de Execução
+## Guia de Execução do Entrypoint
 ### 1. Configuração do Ambiente
 Definição do diretório de trabalho para garantir acesso aos módulos corretos:
 ```python
