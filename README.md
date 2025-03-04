@@ -2,6 +2,7 @@
 
 ## Visão Geral
 Este projeto treina e avalia modelos de machine learning para prever a potabilidade da água. O experimento é rastreado usando MLflow, e os modelos Random Forest e XGBoost são utilizados para classificação.
+Não é do escopo deste projeto a criação de features e o tunning do modelo, rodamos 3 versões simples para utilizarmos o mlflow para logging de parâmetros e métricas importantes do modelo.
 
 ## Estrutura do Projeto
 O projeto segue os seguintes passos:
@@ -84,3 +85,15 @@ Módulo responsável pelo rastreamento dos experimentos no MLflow.
 - `log_params(params)`: Registra os hiperparâmetros do modelo.
 - `log_metrics(metrics)`: Registra as métricas de avaliação do modelo.
 - `log_figures(figures, folder_name)`: Registra visualizações de análise, como matriz de confusão
+
+### 3. `model_evaluation`
+Módulo que contém funções para avaliar modelos de classificação binária.
+- `calculate_metrics(y_true, y_pred, y_pred_proba)`: Calcula métricas de avaliação como acurácia, precisão, recall e F1-score.
+- `plot_confusion_matrix(y_true, y_pred)`: Plota a matriz de confusão.
+- `plot_precision_recall_curve(y_true, y_pred_proba)`: Plota a curva de precisão-recall.
+- `print_classification_report(y_true, y_pred)`: Exibe o relatório de classificação.
+- `evaluate_model(y_true, y_pred, y_pred_proba)`: Avalia o modelo e agrega todas as métricas e visualizações relevantes.
+
+## Resultados Esperados
+Cada execução gera métricas de avaliação do modelo, que podem ser acessadas no MLflow, permitindo a comparação de desempenho entre os diferentes modelos. Os modelos são salvos dentro do artefato, o que nos leva a poder utilizar o que possui a melhor performance.
+No nosso caso o xgboost 2 possuiu melhor performance.
